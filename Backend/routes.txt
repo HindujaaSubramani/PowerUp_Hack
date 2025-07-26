@@ -1,0 +1,6 @@
+POST http://localhost:5000/generate_quiz
+Content-Type: application/json
+Body:
+{
+  "domain": "Operating Systems"
+}
