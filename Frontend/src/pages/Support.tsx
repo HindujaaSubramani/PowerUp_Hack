@@ -94,55 +94,6 @@ const Support = () => {
           </CardContent>
         </Card>
 
-        {/* Additional Support Options */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <span className="text-xl">💬</span>
-                Community Support
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm mb-4">
-                Join our learning community to ask questions, share experiences, and learn from peers.
-              </p>
-              <ul className="space-y-1 text-sm text-muted-foreground mb-4">
-                <li>• Active discussion forums</li>
-                <li>• Study groups and challenges</li>
-                <li>• Peer code reviews</li>
-                <li>• Weekly Q&A sessions</li>
-              </ul>
-              <Button variant="outline" className="w-full">
-                Join Community
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <span className="text-xl">📚</span>
-                Learning Resources
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm mb-4">
-                Access our curated collection of learning materials and tools.
-              </p>
-              <ul className="space-y-1 text-sm text-muted-foreground mb-4">
-                <li>• Comprehensive study guides</li>
-                <li>• Practice exercises and projects</li>
-                <li>• Industry trend reports</li>
-                <li>• Career development templates</li>
-              </ul>
-              <Button variant="outline" className="w-full">
-                Browse Resources
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* FAQ Section */}
         <Card className="mt-8">
           <CardHeader>

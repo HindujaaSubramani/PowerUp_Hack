@@ -27,7 +27,10 @@ client = ChatCompletionsClient(
 # -------------------- Quiz Generation --------------------
 def generate_quiz(domain):
     prompt = f"""
-Generate exactly 10 multiple-choice questions (MCQs) for the topic: {domain}.
+You are an expert educational content creator. 
+Generate exactly 10 multiple-choice questions (MCQs) strictly for academic and professional learning purposes on the topic: "{domain}".
+If the topic is abbreviated (like FSD), interpret it in the context of education, training, or professional development (e.g., Full Stack Development).
+
 Each question must have 4 options (A, B, C, D) and clearly specify the correct answer at the end.
 
 Strict format:
@@ -40,7 +43,7 @@ Correct Answer: <Correct option (A/B/C/D)>
 """
     response = client.complete(
         messages=[
-            SystemMessage("You are a quiz master."),
+            SystemMessage("You are a quiz master focusing only on education and professional development topics."),
             UserMessage(prompt),
         ],
         temperature=0.7,
@@ -49,7 +52,6 @@ Correct Answer: <Correct option (A/B/C/D)>
     )
 
     raw_quiz = response.choices[0].message.content.strip()
-    #print("🧠 Raw LLM Output:\n", raw_quiz)  # Debugging log
     parsed_quiz = parse_quiz_text(raw_quiz)
 
     # Fallback: If parsing fails, return raw text as one dummy question

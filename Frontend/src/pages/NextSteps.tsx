@@ -101,13 +101,6 @@ const NextSteps = () => {
                 >
                   Get Mentorship
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  View Dashboard
-                </Button>
               </div>
             </CardContent>
           </Card>
