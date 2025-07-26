@@ -28,10 +28,10 @@ client = ChatCompletionsClient(
 def generate_quiz(domain):
     prompt = f"""
 Generate exactly 10 multiple-choice questions (MCQs) for the topic: {domain}.
-Each question should have 4 options (A, B, C, D) and the correct answer must be specified.
+Each question must have 4 options (A, B, C, D) and clearly specify the correct answer at the end.
 
-Format:
-Question: <Question text>
+Strict format:
+Question 1: <Question text>
 A) <Option 1>
 B) <Option 2>
 C) <Option 3>
@@ -49,39 +49,53 @@ Correct Answer: <Correct option (A/B/C/D)>
     )
 
     raw_quiz = response.choices[0].message.content.strip()
-    #print("🧠 Raw LLM Output:\n", raw_quiz)  Debugging log
+    #print("🧠 Raw LLM Output:\n", raw_quiz)  # Debugging log
     parsed_quiz = parse_quiz_text(raw_quiz)
+
+    # Fallback: If parsing fails, return raw text as one dummy question
+    if not parsed_quiz:
+        parsed_quiz = [{
+            "question": f"Unable to parse quiz for {domain}. Here’s the raw output:",
+            "options": [raw_quiz[:50], "Option B", "Option C", "Option D"],
+            "correctAnswer": raw_quiz[:50]
+        }]
     return parsed_quiz
+
 
 def parse_quiz_text(quiz_text):
     questions = []
-    parts = re.split(r"Question:\s*", quiz_text.strip())[1:]
+    blocks = re.split(r"(?:Question\s*\d*:|Question:)", quiz_text)[1:]
 
-    for part in parts:
-        try:
-            question_match = re.match(r"(.*?)\nA\)", part.strip(), re.DOTALL)
-            question = question_match.group(1).strip() if question_match else ""
-
-            options = []
-            for label in ['A', 'B', 'C', 'D']:
-                option_match = re.search(rf"{label}\)\s*(.*?)\n", part + "\n")
-                options.append(option_match.group(1).strip() if option_match else "")
-
-            correct_letter_match = re.search(r'Correct Answer:\s*([A-D])', part)
-            correct_letter = correct_letter_match.group(1).strip() if correct_letter_match else "A"
-            correct_answer = options[ord(correct_letter) - ord('A')]
-
-            if question and all(options):
-                questions.append({
-                    "question": question,
-                    "options": options,
-                    "correctAnswer": correct_answer
-                })
-        except Exception as e:
-            print(f"⚠️ Error parsing question: {e}")
+    for block in blocks:
+        lines = [line.strip() for line in block.strip().split("\n") if line.strip()]
+        if not lines:
             continue
 
+        question = lines[0]
+        options = []
+        for label in ["A)", "B)", "C)", "D)"]:
+            for line in lines:
+                if line.startswith(label):
+                    options.append(line[len(label):].strip())
+                    break
+
+        correct_letter = None
+        for line in lines:
+            match = re.search(r"Correct Answer[:\s]*([A-D])", line, re.IGNORECASE)
+            if match:
+                correct_letter = match.group(1).upper()
+                break
+
+        if question and len(options) == 4 and correct_letter in ["A", "B", "C", "D"]:
+            correct_answer = options[ord(correct_letter) - ord("A")]
+            questions.append({
+                "question": question,
+                "options": options,
+                "correctAnswer": correct_answer
+            })
+
     return questions
+
 
 @app.route('/generate_quiz', methods=['POST'])
 def quiz_endpoint():
@@ -105,6 +119,7 @@ def fetch_youtube_videos(topic, limit=5):
     results = videos_search.result()
     video_list = [{'title': v['title'], 'url': v['link']} for v in results['result']]
     return video_list
+
 
 @app.route("/recommend_videos", methods=["GET"])
 def recommend_videos():
@@ -137,6 +152,7 @@ Include:
         model=MODEL_NAME
     )
     return response.choices[0].message.content.strip()
+
 
 @app.route("/generate_roadmap", methods=["POST"])
 def roadmap_endpoint():
