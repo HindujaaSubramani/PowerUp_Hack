@@ -13,223 +13,107 @@ interface Course {
   duration: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   videoUrl: string;
-  skills: string[];
   completed: boolean;
 }
 
-const mockCourses: Course[] = [
-  {
-    id: "1",
-    title: "JavaScript Fundamentals",
-    description: "Master the basics of JavaScript including variables, functions, and DOM manipulation.",
-    duration: "4h 30m",
-    difficulty: "Beginner",
-    videoUrl: "https://example.com/js-fundamentals",
-    skills: ["JavaScript (ES6+)", "DOM Manipulation"],
-    completed: false
-  },
-  {
-    id: "2", 
-    title: "React Component Architecture",
-    description: "Learn to build scalable React applications with proper component design patterns.",
-    duration: "6h 15m",
-    difficulty: "Intermediate",
-    videoUrl: "https://example.com/react-components",
-    skills: ["React.js", "State Management (Redux/Context)"],
-    completed: false
-  },
-  {
-    id: "3",
-    title: "RESTful API Development",
-    description: "Build robust APIs using Node.js and Express with proper HTTP methods and status codes.",
-    duration: "5h 45m", 
-    difficulty: "Intermediate",
-    videoUrl: "https://example.com/api-development",
-    skills: ["Node.js & Express", "RESTful APIs"],
-    completed: false
-  },
-  {
-    id: "4",
-    title: "Database Design Principles",
-    description: "Understand relational and NoSQL database design, normalization, and optimization.",
-    duration: "3h 20m",
-    difficulty: "Beginner",
-    videoUrl: "https://example.com/database-design",
-    skills: ["Database Design (SQL/NoSQL)"],
-    completed: false
-  }
-];
+const courseMapping: Record<string, Course[]> = {
+  sde: [
+    { id: "1", title: "Data Structures & Algorithms", description: "Master core DS & Algorithms used in interviews.", duration: "8h 20m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=RBSGKlAvoiM", completed: false },
+    { id: "2", title: "System Design Basics", description: "Understand scalability, load balancing and design patterns.", duration: "5h 10m", difficulty: "Advanced", videoUrl: "https://www.youtube.com/watch?v=lxzGfKX0Q2Q", completed: false },
+    { id: "3", title: "Database Management", description: "Learn SQL, indexing, and transactions for efficient backends.", duration: "4h 40m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=HXV3zeQKqGY", completed: false },
+    { id: "4", title: "Object-Oriented Programming", description: "Master OOP principles and their real-world applications.", duration: "3h 30m", difficulty: "Beginner", videoUrl: "https://www.youtube.com/watch?v=SiBw7os-_zI", completed: false }
+  ],
+  fsd: [
+    { id: "1", title: "HTML & CSS Fundamentals", description: "Build responsive and modern UI layouts.", duration: "4h 30m", difficulty: "Beginner", videoUrl: "https://www.youtube.com/watch?v=G3e-cpL7ofc", completed: false },
+    { id: "2", title: "JavaScript & ES6+", description: "Master modern JS syntax and DOM manipulation.", duration: "6h 00m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=PkZNo7MFNFg", completed: false },
+    { id: "3", title: "React & State Management", description: "Build interactive SPAs with React and Context API.", duration: "5h 45m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=bMknfKXIFA8", completed: false },
+    { id: "4", title: "Backend with Node.js", description: "Develop scalable APIs using Express and MongoDB.", duration: "5h 20m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=Oe421EPjeBE", completed: false }
+  ],
+  uiux: [
+    { id: "1", title: "Design Thinking", description: "Learn empathy-driven design process.", duration: "3h 45m", difficulty: "Beginner", videoUrl: "https://www.youtube.com/watch?v=_r0VX-aU_T8", completed: false },
+    { id: "2", title: "Figma for Beginners", description: "Master UI design basics with Figma.", duration: "4h 00m", difficulty: "Beginner", videoUrl: "https://www.youtube.com/watch?v=jwCmIBJ8Jtc", completed: false },
+    { id: "3", title: "UX Principles", description: "Understand usability, accessibility, and design patterns.", duration: "5h 20m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=Ovj4hFxko7c", completed: false },
+    { id: "4", title: "Portfolio Design", description: "Create a professional design portfolio.", duration: "3h 30m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=ZtY4JfL4dQ8", completed: false }
+  ],
+  "data science": [
+    { id: "1", title: "Python for Data Science", description: "Learn Python libraries used in data science.", duration: "6h 10m", difficulty: "Beginner", videoUrl: "https://www.youtube.com/watch?v=_uQrJ0TkZlc", completed: false },
+    { id: "2", title: "Statistics & Probability", description: "Understand statistical concepts for data analysis.", duration: "4h 55m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=xxpc-HPKN28", completed: false },
+    { id: "3", title: "Machine Learning Basics", description: "Introduction to supervised and unsupervised ML models.", duration: "7h 20m", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=GwIo3gDZCVQ", completed: false },
+    { id: "4", title: "Data Visualization", description: "Learn to create insightful visualizations using Python.", duration: "4h 05m", difficulty: "Beginner", videoUrl: "https://www.youtube.com/watch?v=3Xc3CA655Y4", completed: false }
+  ]
+};
 
 const Courses = () => {
+  const [selectedTrack, setSelectedTrack] = useState("fsd");
   const [courses, setCourses] = useState<Course[]>([]);
-  const [unknownSkills, setUnknownSkills] = useState<string[]>([]);
-  const navigate = useNavigate(); // ✅ Use navigate here
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUnknownSkills = JSON.parse(localStorage.getItem("unknownSkills") || "[]");
-    setUnknownSkills(storedUnknownSkills);
+    setCourses(courseMapping[selectedTrack].map(course => ({ ...course, completed: false })));
+  }, [selectedTrack]);
 
-    const relevantCourses = mockCourses.filter(course =>
-      course.skills.some(skill => storedUnknownSkills.includes(skill))
-    );
-
-    setCourses(relevantCourses.length > 0 ? relevantCourses : mockCourses);
-  }, []);
-
-  const handleStartCourse = (courseId: string) => {
-    setCourses(prev => 
-      prev.map(course => 
-        course.id === courseId 
-          ? { ...course, completed: true }
-          : course
-      )
-    );
+  const handleCompleteCourse = (courseId: string) => {
+    setCourses(prev => prev.map(course => course.id === courseId ? { ...course, completed: true } : course));
   };
 
-  const completedCourses = courses.filter(course => course.completed).length;
+  const completedCourses = courses.filter(c => c.completed).length;
   const overallProgress = courses.length > 0 ? (completedCourses / courses.length) * 100 : 0;
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "Beginner": return "bg-green-100 text-green-800";
-      case "Intermediate": return "bg-yellow-100 text-yellow-800";
-      case "Advanced": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
 
   return (
     <PageLayout>
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">Recommended Courses</h1>
-          <p className="text-muted-foreground">
-            Curated learning content based on your skill assessment. Start with any course that interests you.
-          </p>
+        <h1 className="text-3xl font-bold mb-4">Recommended Courses</h1>
+        <Progress value={overallProgress} className="mb-4" />
+        <p className="mb-8">{Math.round(overallProgress)}% completed</p>
+
+        {/* Domain Selector */}
+        <div className="flex gap-4 mb-6">
+          {Object.keys(courseMapping).map(track => (
+            <Button
+              key={track}
+              onClick={() => setSelectedTrack(track)}
+              variant={selectedTrack === track ? "default" : "outline"}
+            >
+              {track.toUpperCase()}
+            </Button>
+          ))}
         </div>
-
-        {/* Progress Overview */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Learning Progress
-              <Badge variant="secondary">{completedCourses}/{courses.length} Completed</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Progress value={overallProgress} className="mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {Math.round(overallProgress)}% of recommended courses completed
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Skills Gap Notice */}
-        {unknownSkills.length > 0 && (
-          <Card className="mb-8 border-orange-200 bg-orange-50/50">
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-orange-800 mb-2">Focus Areas</h3>
-              <p className="text-sm text-orange-700 mb-3">
-                These courses target your identified skill gaps:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {unknownSkills.slice(0, 6).map(skill => (
-                  <Badge key={skill} variant="outline" className="border-orange-300 text-orange-700">
-                    {skill}
-                  </Badge>
-                ))}
-                {unknownSkills.length > 6 && (
-                  <Badge variant="outline" className="border-orange-300 text-orange-700">
-                    +{unknownSkills.length - 6} more
-                  </Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Courses Grid */}
         <div className="grid md:grid-cols-2 gap-6">
-          {courses.map((course) => (
-            <Card 
-              key={course.id} 
-              className={`border-2 transition-all duration-300 hover:shadow-lg ${
-                course.completed ? "border-green-200 bg-green-50/50" : "hover:border-primary/50"
-              }`}
-            >
+          {courses.map(course => (
+            <Card key={course.id} className={`border-2 ${course.completed ? "border-green-200 bg-green-50/50" : "hover:border-primary/50"}`}>
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg mb-2">{course.title}</CardTitle>
-                    <CardDescription className="text-sm leading-relaxed">
-                      {course.description}
-                    </CardDescription>
-                  </div>
-                  {course.completed && (
-                    <Badge className="bg-green-100 text-green-800 ml-2">✓ Completed</Badge>
-                  )}
-                </div>
-                
+                <CardTitle className="text-lg mb-2">{course.title}</CardTitle>
+                <CardDescription>{course.description}</CardDescription>
                 <div className="flex items-center gap-3 mt-3">
-                  <Badge className={getDifficultyColor(course.difficulty)}>
-                    {course.difficulty}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">📺 {course.duration}</span>
+                  <Badge>{course.difficulty}</Badge>
+                  <span className="text-sm">📺 {course.duration}</span>
                 </div>
               </CardHeader>
-              
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Skills Covered</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {course.skills.map(skill => (
-                        <Badge 
-                          key={skill} 
-                          variant="secondary" 
-                          className="text-xs"
-                        >
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    onClick={() => handleStartCourse(course.id)}
-                    className="w-full"
-                    variant={course.completed ? "secondary" : "default"}
-                    disabled={course.completed}
-                  >
-                    {course.completed ? "Completed" : "Start Course"}
-                  </Button>
-                </div>
+              <CardContent className="flex flex-col gap-2">
+                <Button asChild>
+                  <a href={course.videoUrl} target="_blank" rel="noopener noreferrer">
+                    Watch Video
+                  </a>
+                </Button>
+                <Button
+                  onClick={() => handleCompleteCourse(course.id)}
+                  variant={course.completed ? "secondary" : "default"}
+                  disabled={course.completed}
+                >
+                  {course.completed ? "Completed" : "Mark as Completed"}
+                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {courses.length === 0 && (
-          <Card className="text-center py-12 mt-10">
-            <CardContent>
-              <div className="text-4xl mb-4">📚</div>
-              <h3 className="text-lg font-semibold mb-2">No Courses Available</h3>
-              <p className="text-muted-foreground">
-                Complete your skill assessment to get personalized course recommendations.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* 🎉 Completion Button */}
+        {/* Finish Learning Button */}
         {courses.length > 0 && completedCourses === courses.length && (
           <div className="mt-10 text-center">
-            <Button 
-              onClick={() => navigate("/completion")} 
-              size="lg" 
-              className="px-8"
-            >
-              🎉 Finish and View Summary
+            <Button onClick={() => navigate("/completion")} size="lg" className="px-8">
+              🎉 Finish Learning
             </Button>
           </div>
         )}

@@ -49,7 +49,7 @@ Correct Answer: <Correct option (A/B/C/D)>
     )
 
     raw_quiz = response.choices[0].message.content.strip()
-    print("🧠 Raw LLM Output:\n", raw_quiz)  # Debugging log
+    #print("🧠 Raw LLM Output:\n", raw_quiz)  Debugging log
     parsed_quiz = parse_quiz_text(raw_quiz)
     return parsed_quiz
 
